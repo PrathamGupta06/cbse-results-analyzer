@@ -1,3 +1,6 @@
+import os
+from openpyxl import Workbook
+
 CBSE_CLASS_12_SUBJECT_CODES = {
     # Language Subjects
     "001": "ENGLISH ELECTIVE",
@@ -169,14 +172,18 @@ CBSE_CLASS_10_SUBJECT_CODES = {
 
 ROLL_NUMBER_LENGTH = 8
 NAME_STARTING = 13
-NAME_ENDING = 65
+NAME_ENDING = 64
 SUBJECT_STARTING = 64
 SUBJECT_ENDING = 113
 GRADE_STARTING = 64
 GRADE_ENDING = 113
 RESULT_STARTING = 114
 RESULT_ENDING = 121
+# TODO: Complete the Groups
+GROUPS = {
+    "Science": ["PHYSICS", "CHEMISTRY", "MATHS"]
 
+}
 
 def is_integer(s):
     try:
@@ -196,37 +203,87 @@ def convert_subject_code_to_name(subject_codes_list):
     return sub_names
 
 
-def get_subject_headings(file_name):
-    heading_subjects = []
-    heading_codes = []
+def get_subject_headings_and_remove_other_stuff(file_name, new_file_name="only_records.txt"):
     total_students = 0
-
+    unique_subject_codes = []
     file = open(file_name, "r")
+    new_file = open("output\\" + new_file_name, "w")
+
+    # total_students - number of students in the file
+    # unique_subject_codes - list of unique subject codes
+    # file - original result file
+    # file_new - new file without headings
+
     lines = file.readlines()
     i = 0
     while i <= len(lines) - 2:
         name_line = lines[i]
         if is_integer(name_line[:ROLL_NUMBER_LENGTH]):
+            # Line contains student name
+
             total_students += 1
             sub_codes = name_line[SUBJECT_STARTING:SUBJECT_ENDING].split()
-            sub_names = convert_subject_code_to_name(sub_codes)
+            # sub_codes - Subject Codes of Subjects given by student
 
-            for sub in sub_names:
-                if sub not in heading_subjects:
-                    heading_subjects.append(sub)
+            # writing student records to new file
+            new_file.writelines([lines[i], lines[i + 1]])
 
+            # Adding new subject codes to list of unique subject codes
             for sub_code in sub_codes:
-                if sub_code not in heading_codes:
-                    heading_codes.append(sub_code)
+                if sub_code not in unique_subject_codes:
+                    unique_subject_codes.append(sub_code)
         i += 1
-    print(total_students)
+
+    unique_subject_names = convert_subject_code_to_name(unique_subject_codes)
+
+    new_file.close()
     file.close()
-    return heading_subjects, heading_codes
+
+    return unique_subject_names, unique_subject_codes
+
+
+def arrange_records_in_order(header, sub_codes, record_line_1, record_line_2):
+    roll_no = record_line_1[:ROLL_NUMBER_LENGTH]
+    name = record_line_1[NAME_STARTING:NAME_ENDING]
+    subject_codes_of_student = record_line_1[SUBJECT_STARTING:SUBJECT_ENDING].split()
+    subject_marks_of_student = record_line_2[GRADE_STARTING:GRADE_ENDING].split()[::2]
+
+    ordered_marks = [""] * len(sub_codes)
+
+    # Arranging marks in order of subject codes given in sub_codes
+    # In case of subject code not given by the student, it will be marked as ""
+    # e.g
+    # sub_codes = ['184', '122', '041', '086', '087', '085', '241', '165', '064']
+    # subject_codes_of_student = ['184', '122', '041', '086', '087']
+    # subject_marks_of_student = ['086', '090', '094', '091', '096']
+    # then marks will be ordered as :-
+    # ['086', '090', '094', '091', '096', '', '', '', '']
+    # Here since the student doesn't have subject code '085', '241', '165', '064'
+    # those subject marks are set to ""
+
+    # This is done to make sure that while appending the marks to the Excel sheet,
+    # the marks are in the same order as the subject codes given in the headers.
+
+    for code, marks in zip(subject_codes_of_student, subject_marks_of_student):
+        ordered_marks[sub_codes.index(code)] = marks
+
+    return [roll_no, name] + ordered_marks
 
 
 original_file_name = r"input\original files\10th Result.txt"
-subject_headings, subject_codes = get_subject_headings(original_file_name)
-heading = ["Roll Number", "Name"] + subject_headings
-print(heading)
-print(subject_codes)
+subject_names, subject_codes = get_subject_headings_and_remove_other_stuff(original_file_name)
+headers = ["Roll Number", "Name"] + subject_names
 
+f = open("output\\new.txt", "r")
+wb = Workbook()
+ws = wb.active
+
+lines = f.readlines()
+ws.append(headers)
+i = 0
+while i <= len(lines) - 2:
+    correct_record = arrange_records_in_order(headers, subject_codes, lines[i], lines[i + 1])
+    ws.append(correct_record)
+    i += 2
+
+wb.save("output\\new.xlsx")
