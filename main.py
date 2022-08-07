@@ -1,6 +1,7 @@
 import os
-from openpyxl import Workbook
-
+from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.utils.cell import get_column_letter
 CBSE_CLASS_12_SUBJECT_CODES = {
     # Language Subjects
     "001": "ENGLISH ELECTIVE",
@@ -185,6 +186,7 @@ GROUPS = {
 
 }
 
+
 def is_integer(s):
     try:
         int(s)
@@ -265,20 +267,36 @@ def arrange_records_in_order(header, sub_codes, record_line_1, record_line_2):
     # the marks are in the same order as the subject codes given in the headers.
 
     for code, marks in zip(subject_codes_of_student, subject_marks_of_student):
+        if is_integer(marks):
+            marks = int(marks)
         ordered_marks[sub_codes.index(code)] = marks
 
     return [roll_no, name] + ordered_marks
 
 
-original_file_name = r"input\original files\10th Result.txt"
-subject_names, subject_codes = get_subject_headings_and_remove_other_stuff(original_file_name)
+def intitalize_workbook(workbook_path):
+    # create a workbook at workbook path
+    # create an all sheet and delete the sheet named "Sheet"
+    # return the workbook object
+    wb = Workbook()
+    wb.create_sheet("all", 0)
+    del wb["Sheet"]
+    wb.save(workbook_path)
+
+
+original_file_name = r"input\result_10th.txt"
+subject_names, subject_codes = get_subject_headings_and_remove_other_stuff(original_file_name, "temp.txt")
 headers = ["Roll Number", "Name"] + subject_names
 
-f = open("output\\new.txt", "r")
-wb = Workbook()
-ws = wb.active
+f = open("output\\temp.txt", "r")
 
+intitalize_workbook("output\\result_10th.xlsx")
+workbook = load_workbook("output\\result_10th.xlsx")
+ws = workbook["all"]
 lines = f.readlines()
+
+# add the records to a list data in correct order
+data = []
 ws.append(headers)
 i = 0
 while i <= len(lines) - 2:
@@ -286,4 +304,13 @@ while i <= len(lines) - 2:
     ws.append(correct_record)
     i += 2
 
-wb.save("output\\new.xlsx")
+tab = Table(displayName="Table1", ref="A1:" + get_column_letter(len(headers)) + str(ws.max_row))
+
+style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
+                       showLastColumn=False, showRowStripes=True, showColumnStripes=True)
+tab.tableStyleInfo = style
+ws.add_table(tab)
+
+workbook.save("output\\result_10th.xlsx")
+f.close()
+os.remove("output\\temp.txt")
