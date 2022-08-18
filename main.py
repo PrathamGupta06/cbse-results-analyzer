@@ -1,7 +1,10 @@
 import os
+import re
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils.cell import get_column_letter
+
+# noinspection DuplicatedCode
 CBSE_CLASS_12_SUBJECT_CODES = {
     # Language Subjects
     "001": "ENGLISH ELECTIVE",
@@ -171,146 +174,178 @@ CBSE_CLASS_10_SUBJECT_CODES = {
 
 }
 
-ROLL_NUMBER_LENGTH = 8
-NAME_STARTING = 13
-NAME_ENDING = 64
-SUBJECT_STARTING = 64
-SUBJECT_ENDING = 113
-GRADE_STARTING = 64
-GRADE_ENDING = 113
-RESULT_STARTING = 114
-RESULT_ENDING = 121
-# TODO: Complete the Groups
-GROUPS = {
-    "Science": ["PHYSICS", "CHEMISTRY", "MATHS"]
+# def get_data(result_file, class)
+# def get_headers(result_file, class)
+# def reformat(data, headers)
+# def add_data_to_excel(headers, data, excel_file)
+# def get_statistics(excel_file)
 
-}
+# while adding data to excel replace the subject code with subject
+
+# data_format = [roll no, gender, name, marks, grade, pass/fail, Compartment Subject, best 5 subject marks]
+
+# ---- REGEX VALUES ----
+# Change these values in case the format changes
+
+subject_codes_regex = re.compile(r'(?<=\s)\d\d\d(?=\s)')
+roll_no_regex = re.compile(r'\d{8,}')
+gender_regex = re.compile(r'(?<=\s)[FM](?=\s)')
+name_regex = re.compile(r'[A-Z]+')  # then remove "PASS"
+marks_regex = re.compile(r'(?<=\s)\d\d\d(?=\s)')
+pass_fail_regex = re.compile(r'PASS|FAIL|COMP')
+grades_regex = re.compile(r'[A-E][12]|(?<=\s)E(?=\s)')
 
 
-def is_integer(s):
-    try:
-        int(s)
+def contains_student_data(line):
+    # marks_regex = re.compile(r'(?<=\s)\d\d\d(?=\s)')
+    # if marks_regex.search(line) is not None:
+    #     return True
+    # return False
+    if roll_no_regex.search(line) is not None:
         return True
-    except ValueError:
-        return False
+    return False
 
 
-def convert_subject_code_to_name(subject_codes_list):
-    sub_names = []
-    for subjectCode in subject_codes_list:
-        if subjectCode in CBSE_CLASS_10_SUBJECT_CODES:
-            sub_names.append(CBSE_CLASS_10_SUBJECT_CODES[subjectCode])
-        else:
-            sub_names.append(subjectCode)
-    return sub_names
+def convert_to_list_of_integer(list_of_strings):
+    return [int(i) for i in list_of_strings]
 
 
-def get_subject_headings_and_remove_other_stuff(file_name, new_file_name="only_records.txt"):
+def convert_codes_to_subjects(list_of_codes, mode):
+    if mode == '10th':
+        return [CBSE_CLASS_10_SUBJECT_CODES[code] for code in list_of_codes]
+    elif mode == '12th':
+        return [CBSE_CLASS_12_SUBJECT_CODES[code] for code in list_of_codes]
+    raise ValueError('Invalid mode. Valid Modes are 10th and 12th.')
+
+
+# Functions to get stuff from a string
+
+def get_subject_codes(string_containing_subject_codes):
+    # subject_codes_regex = re.compile(r'(?<=\s)\d\d\d(?=\s)')
+    return subject_codes_regex.findall(string_containing_subject_codes)
+
+
+def get_marks(string_containing_marks):
+    # marks_regex = re.compile(r'(?<=\s)\d\d\d(?=\s)')
+    marks_tuple = marks_regex.findall(string_containing_marks)
+    return list(marks_tuple)
+
+
+def get_name(string_containing_name):
+    # name_regex = re.compile(r'[A-Z]+')
+    name_tuple = name_regex.findall(string_containing_name)
+    # name[0] is gender and name[-1] is fail/pass
+    # remove name[0] and name[-1]
+    return ' '.join(name_tuple[1:-1])
+
+
+def get_grades(string_containing_grades):
+    # grades_regex = re.compile(r'[A-E][12]|(?<=\s)E(?=\s)')
+    grades_tuple = grades_regex.findall(string_containing_grades)
+    return list(grades_tuple)
+
+
+def get_gender(string_containing_gender):
+    # gender_regex = re.compile(r'(?<=\s)[FM](?=\s)')
+    gender = gender_regex.search(string_containing_gender).group(0)
+    return gender
+
+
+def get_roll_no(string_containing_roll_no):
+    # roll_no_regex = re.compile(r'\d{8,}')
+    roll_no = roll_no_regex.search(string_containing_roll_no).group(0)
+    return roll_no
+
+
+def get_lines(file):
+    with open(file, 'r') as f:
+        lines = f.readlines()
+    return lines
+
+
+def filter_lines(list_of_lines, format):
+    print("Refining Lines in format {}".format(format))
+    refined_lines = []
     total_students = 0
-    unique_subject_codes = []
-    file = open(file_name, "r")
-    new_file = open("output\\" + new_file_name, "w")
 
-    # total_students - number of students in the file
-    # unique_subject_codes - list of unique subject codes
-    # file - original result file
-    # file_new - new file without headings
-
-    lines = file.readlines()
-    i = 0
-    while i <= len(lines) - 2:
-        name_line = lines[i]
-        if is_integer(name_line[:ROLL_NUMBER_LENGTH]):
-            # Line contains student name
-
+    for line_number, line in enumerate(list_of_lines):
+        if contains_student_data(line):
             total_students += 1
-            sub_codes = name_line[SUBJECT_STARTING:SUBJECT_ENDING].split()
-            # sub_codes - Subject Codes of Subjects given by student
+            refined_lines.append(list_of_lines[line_number])
+            if format == "10th":
+                refined_lines.append(list_of_lines[line_number + 1])
+            elif format == "12th":
+                refined_lines.append(list_of_lines[line_number + 2])
+            else:
+                raise ValueError('Invalid format. Valid formats are 10th and 12th.')
 
-            # writing student records to new file
-            new_file.writelines([lines[i], lines[i + 1]])
-
-            # Adding new subject codes to list of unique subject codes
-            for sub_code in sub_codes:
-                if sub_code not in unique_subject_codes:
-                    unique_subject_codes.append(sub_code)
-        i += 1
-
-    unique_subject_names = convert_subject_code_to_name(unique_subject_codes)
-
-    new_file.close()
-    file.close()
-
-    return unique_subject_names, unique_subject_codes
+    print("Filtered Data of {} students".format(total_students))
+    return refined_lines
 
 
-def arrange_records_in_order(header, sub_codes, record_line_1, record_line_2):
-    roll_no = record_line_1[:ROLL_NUMBER_LENGTH]
-    name = record_line_1[NAME_STARTING:NAME_ENDING]
-    subject_codes_of_student = record_line_1[SUBJECT_STARTING:SUBJECT_ENDING].split()
-    subject_marks_of_student = record_line_2[GRADE_STARTING:GRADE_ENDING].split()[::2]
+def get_unique_subject_codes(list_of_lines_containing_subject_codes):
+    unique_subject_codes = set()
+    for line in list_of_lines_containing_subject_codes:
+        codes = get_subject_codes(line)
+        for code in codes:
+            unique_subject_codes.add(code)
 
-    ordered_marks = [""] * len(sub_codes)
-
-    # Arranging marks in order of subject codes given in sub_codes
-    # In case of subject code not given by the student, it will be marked as ""
-    # e.g
-    # sub_codes = ['184', '122', '041', '086', '087', '085', '241', '165', '064']
-    # subject_codes_of_student = ['184', '122', '041', '086', '087']
-    # subject_marks_of_student = ['086', '090', '094', '091', '096']
-    # then marks will be ordered as :-
-    # ['086', '090', '094', '091', '096', '', '', '', '']
-    # Here since the student doesn't have subject code '085', '241', '165', '064'
-    # those subject marks are set to ""
-
-    # This is done to make sure that while appending the marks to the Excel sheet,
-    # the marks are in the same order as the subject codes given in the headers.
-
-    for code, marks in zip(subject_codes_of_student, subject_marks_of_student):
-        if is_integer(marks):
-            marks = int(marks)
-        ordered_marks[sub_codes.index(code)] = marks
-
-    return [roll_no, name] + ordered_marks
+    return list(unique_subject_codes)
 
 
-def intitalize_workbook(workbook_path):
-    # create a workbook at workbook path
-    # create an all sheet and delete the sheet named "Sheet"
-    # return the workbook object
-    wb = Workbook()
-    wb.create_sheet("all", 0)
-    del wb["Sheet"]
-    wb.save(workbook_path)
+def get_student_data(list_of_individual_student_lines, subject_code_order, mode):
+    data = []
+    first_line = list_of_individual_student_lines[0]
+    second_line = list_of_individual_student_lines[1]
+    for i in subject_code_order:
+        if i == 'Roll No':
+            data.append(get_roll_no(first_line))
+        elif i == 'Gender':
+            data.append(get_gender(first_line))
+        elif i == 'Name':
+            data.append(get_name(first_line))
+    # TODO: Add Subject marks and Grades and Best 5 Percentage
+    # TODO: For Grade 12th add the Three Grades too
+    return data
 
 
-original_file_name = r"input\result_10th.txt"
-subject_names, subject_codes = get_subject_headings_and_remove_other_stuff(original_file_name, "temp.txt")
-headers = ["Roll Number", "Name"] + subject_names
+def get_data_10th(result_file):
+    # Should return the data with headers formatted as
+    # [headers,
+    #  student 1 details formatted as header,
+    #  student 2 details formatted as header,
+    #  ...]
 
-f = open("output\\temp.txt", "r")
+    lines = get_lines(result_file)
+    lines = filter_lines(lines[:-1], '10th')
+    # -1 to remove the last line which contains total candidate numbers as it bypasses the filter
+    unique_subject_codes = get_unique_subject_codes(lines[::2])
+    # Every second line contains the subject codes
 
-intitalize_workbook("output\\result_10th.xlsx")
-workbook = load_workbook("output\\result_10th.xlsx")
-ws = workbook["all"]
-lines = f.readlines()
+    # -- CODE FOR HEADERS --
+    headers_part_1 = ["Roll No", "Gender", "Name"]
+    unique_subject_names = convert_codes_to_subjects(unique_subject_codes, mode='10th')
+    for subject in unique_subject_names:
+        headers_part_1.extend([subject, "Grade"])
+    headers_part_2 = ["Grade", "Result", "Best 5 percentage"]
+    headers = headers_part_1 + headers_part_2
 
-# add the records to a list data in correct order
-data = []
-ws.append(headers)
-i = 0
-while i <= len(lines) - 2:
-    correct_record = arrange_records_in_order(headers, subject_codes, lines[i], lines[i + 1])
-    ws.append(correct_record)
-    i += 2
+    # -- CODE FOR STUDENT DETAILS IN HEADERS FORMAT --
+    student_details = []
+    for index, line in enumerate(lines[::2]):
+        individual_student_details = get_student_data(
+            list_of_individual_student_lines=lines[index*2: index*2 + 2],
+            subject_code_order=headers,
+            mode='10th'
+        )
+        student_details.append(individual_student_details)
 
-tab = Table(displayName="Table1", ref="A1:" + get_column_letter(len(headers)) + str(ws.max_row))
+    return headers + student_details
 
-style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
-                       showLastColumn=False, showRowStripes=True, showColumnStripes=True)
-tab.tableStyleInfo = style
-ws.add_table(tab)
 
-workbook.save("output\\result_10th.xlsx")
-f.close()
-os.remove("output\\temp.txt")
+def get_data(result_file, mode):
+    if mode == "10th":
+        return get_data_10th(result_file)
+
+
+print(get_data(r'input/result_10th.txt', '10th'))
