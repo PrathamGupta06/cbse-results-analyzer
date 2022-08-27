@@ -6,7 +6,6 @@ from openpyxl.styles import Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.utils import get_column_letter
 
-
 CBSE_CLASS_12_SUBJECT_CODES = {
     # Language Subjects
     "001": "ENGLISH ELECTIVE",
@@ -497,11 +496,16 @@ def get_individual_student_data(list_of_individual_student_lines, subject_code_o
 #     Use excel formula for average of best five =AVERAGE(LARGE([@Gender]:[@Result],{1,2,3,4,5}))
 #
 
-input_file = r'input/result_10th.txt'
-output_path_excel = r'output/result12th.xlsx'
-mode = '10th'
-headers, data = get_data(input_file, mode)
+"""Change the Below Variables"""
 
+input_file = r'input/result_10th.txt'
+output_path_excel = r'output/result10th.xlsx'
+mode = '10th'
+# mode = '12th'
+
+"""Don't change anything beyond here"""
+
+headers, data = get_data(input_file, mode)
 # For printing to terminal remove the max columns
 pd.set_option('display.width', 320)
 pd.set_option('display.max_columns', None)
