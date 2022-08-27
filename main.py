@@ -1,11 +1,11 @@
 import os
 import re
 import pandas as pd
-import openpyxl
 from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.utils import get_column_letter
 
-# noinspection DuplicatedCode
 
 CBSE_CLASS_12_SUBJECT_CODES = {
     # Language Subjects
@@ -202,30 +202,45 @@ grades_regex = re.compile(r'[A-E][12]|(?<=\s)E(?=\s)')
 
 
 def get_lines(file):
+    """Takes the file path as parameter and returns a list of lines"""
     with open(file, 'r') as f:
         lines = f.readlines()
     return lines
 
 
 def filter_lines(list_of_lines, format):
-    print("Refining Lines in format {}".format(format))
-    refined_lines = []
+    """Takes the list of lines and the format as input and removes the unnecessary lines
+    Parameters:
+        list_of_lines : list
+        format : str (either "10th" or "12th"
+    Returns:
+        filtered lines containing student data.
+    """
+    print("Filtering Lines in format {}".format(format))
+    filtered_lines = []
     total_students = 0
 
     for line_number, line in enumerate(list_of_lines):
         if contains_student_data(line):
             total_students += 1
-            refined_lines.append(list_of_lines[line_number])
+            filtered_lines.append(list_of_lines[line_number])
             if format == "10th":
-                refined_lines.append(list_of_lines[line_number + 1])
+                filtered_lines.append(list_of_lines[line_number + 1])
             else:
-                refined_lines.append(list_of_lines[line_number + 2])
+                filtered_lines.append(list_of_lines[line_number + 2])
 
     print("Filtered Data of {} students".format(total_students))
-    return refined_lines
+    return filtered_lines
 
 
 def contains_student_data(line):
+    """Takes a string as input and checks whether that string contains student's data
+   Parameters:
+        line : str
+    Returns -> bool:
+        True, if contains student's roll no and therefore the data
+        False, if it doesn't contain student's roll no and therefore no data.
+    """
     if roll_no_regex.search(line) is not None:
         return True
     return False
@@ -235,10 +250,12 @@ def contains_student_data(line):
 
 
 def convert_to_list_of_integer(list_of_strings):
+    """Converts a list of strings to a list of integers"""
     return [int(i) for i in list_of_strings]
 
 
 def convert_codes_to_subjects(list_of_codes, mode):
+    """Converts a list of CBSE subject codes to a list of Corresponding Subjects"""
     if mode == '10th':
         return [CBSE_CLASS_10_SUBJECT_CODES[code] for code in list_of_codes]
     return [CBSE_CLASS_12_SUBJECT_CODES[code] for code in list_of_codes]
@@ -247,17 +264,33 @@ def convert_codes_to_subjects(list_of_codes, mode):
 # ----- STRING DATA EXTRACTION FUNCTIONS -----
 
 def get_subject_codes(string_containing_subject_codes):
-    # subject_codes_regex = re.compile(r'(?<=\s)\d\d\d(?=\s)')
+    """Searches the string for CBSE Subject Codes
+    Parameters:
+        string_containing_subject_codes : string that has subject codes
+    Returns:
+        List of all the subject codes
+    """
     return subject_codes_regex.findall(string_containing_subject_codes)
 
 
 def get_marks(string_containing_marks):
-    # marks_regex = re.compile(r'(?<=\s)\d\d\d(?=\s)')
+    """Searches the string for student's marks
+    Parameters:
+        string_containing_marks : str (containing marks)
+    Returns:
+        List of all the marks
+    """
     marks_tuple = marks_regex.findall(string_containing_marks)
     return [int(x) for x in marks_tuple]
 
 
 def get_name(string_containing_name):
+    """Searches the string for student's marks
+    Parameters:
+        string_containing_name : str (containing the student's name)
+    Returns:
+        Name : str
+    """
     # name_regex = re.compile(r'[A-Z]+')
     # name_tuple = name_regex.findall(string_containing_name)
     # name[0] is gender and name[-1] is fail/pass
@@ -267,19 +300,28 @@ def get_name(string_containing_name):
 
 
 def get_grades(string_containing_grades):
-    # grades_regex = re.compile(r'[A-E][12]|(?<=\s)E(?=\s)')
+    """Searches the string for student's grades
+    Parameters:
+        string_containing_grades : str (containing grades)
+    Returns:
+        List of all the grades in the string
+    """
     grades_tuple = grades_regex.findall(string_containing_grades)
     return list(grades_tuple)
 
 
 def get_gender(string_containing_gender):
-    # gender_regex = re.compile(r'(?<=\s)[FM](?=\s)')
+    """Searches the string for student's gender
+    Parameters:
+        string_containing_gender : A string that contains gender
+    Returns:
+       Gender : str
+    """
     gender = gender_regex.search(string_containing_gender).group(0)
     return gender
 
 
 def get_roll_no(string_containing_roll_no):
-    # roll_no_regex = re.compile(r'\d{8,}')
     roll_no = roll_no_regex.search(string_containing_roll_no).group(0)
     return roll_no
 
@@ -300,14 +342,13 @@ def get_marks_and_grades(first_line_without_compartment, second_line, subject_co
     return marks_and_grades
 
 
-# noinspection PyPep8Naming
 def get_compartment_subjects(string, mode):
     if mode == "10th":
-        COMPARTMENT_SUBJECT_START = 127
+        compartment_subject_start = 127
     else:
-        COMPARTMENT_SUBJECT_START = 144
+        compartment_subject_start = 144
 
-    compartment_subjects = string[COMPARTMENT_SUBJECT_START:].strip().split()
+    compartment_subjects = string[compartment_subject_start:].strip().split()
     if len(compartment_subjects) > 0:
         return " ".join(compartment_subjects)
     else:
@@ -344,6 +385,24 @@ def get_headers(unique_subject_codes, mode):
     return headers
 
 
+def best_5_percent(marks_list):
+    marks_list.sort()
+    total_marks = 0
+    for i in marks_list[:5]:
+        total_marks += i
+    return total_marks / 5
+
+
+def save_wb(workbook, path):
+    try:
+        workbook.save(path)
+    except PermissionError:
+        print(
+            "Unable to save the excel file. Please change the output file name or close the file if already open on "
+            "the system")
+        exit()
+
+
 # ----- MAIN FUNCTIONS TO GET DATA -----
 
 def get_data(result_file, mode):
@@ -370,17 +429,17 @@ def get_data_10th(result_file):
     # -- CODE FOR STUDENT DETAILS --
     student_details = []
     for index, line in enumerate(lines[::2]):
-        individual_student_details = get_student_data(
+        individual_student_details = get_individual_student_data(
             list_of_individual_student_lines=lines[index * 2: index * 2 + 2],
             subject_code_order=unique_subject_codes,
             mode=mode
         )
         student_details.append(individual_student_details)
 
-    return [headers] + student_details
+    return headers, student_details
 
 
-# noinspection PyShadowingNames,DuplicatedCode
+# noinspection PyShadowingNames
 def get_data_12th(result_file):
     mode = "12th"
     lines = get_lines(result_file)
@@ -391,17 +450,17 @@ def get_data_12th(result_file):
     # -- CODE FOR STUDENT DETAILS --
     student_details = []
     for index, line in enumerate(lines[::2]):
-        individual_student_details = get_student_data(
+        individual_student_details = get_individual_student_data(
             list_of_individual_student_lines=lines[index * 2: index * 2 + 2],
             subject_code_order=unique_subject_codes,
             mode=mode
         )
         student_details.append(individual_student_details)
 
-    return [headers] + student_details
+    return headers, student_details
 
 
-def get_student_data(list_of_individual_student_lines, subject_code_order, mode):
+def get_individual_student_data(list_of_individual_student_lines, subject_code_order, mode):
     data = []
     first_line_with_compartment = list_of_individual_student_lines[0]
 
@@ -420,63 +479,75 @@ def get_student_data(list_of_individual_student_lines, subject_code_order, mode)
     data.append(get_name(first_line_without_compartment))
     # Marks and Grades
     data.extend(get_marks_and_grades(first_line_without_compartment, second_line, subject_code_order))
-    # FIXME: Best 5 Percentage doesn't work till there is a table
     # 12th three grades
     if mode == '12th':
         data.extend(get_three_grades(first_line_without_compartment))
     # Result
     data.append(get_result(first_line_with_compartment))
     # Best 5 Percentage
-    data.append("=AVERAGE(LARGE([@Gender]:[@Result],{1,2,3,4,5}))")
+    data.append(best_5_percent(get_marks(second_line)))
     # Compartment Subjects
     data.append(get_compartment_subjects(first_line_with_compartment, mode))
     return data
 
 
 # TODO:
-#  Format the data as table
-#  Use excel formula for average of best five =AVERAGE(LARGE([@Gender]:[@Result],{1,2,3,4,5}))
-#  Analyse the marks and grades and print:
+#     Format the data as a table in excel
+#     Analyse the marks and grades and print them
+#     Use excel formula for average of best five =AVERAGE(LARGE([@Gender]:[@Result],{1,2,3,4,5}))
 #
 
-input_file = r'input/12th Result.txt'
+input_file = r'input/result_10th.txt'
 output_path_excel = r'output/result12th.xlsx'
-mode = '12th'
-result = get_data(input_file, mode)
+mode = '10th'
+headers, data = get_data(input_file, mode)
 
 # For printing to terminal remove the max columns
 pd.set_option('display.width', 320)
 pd.set_option('display.max_columns', None)
-df = pd.DataFrame(result)
+df = pd.DataFrame(data, columns=headers)
 
 # Create workbook
 wb = Workbook()
-wb.save(output_path_excel)
+save_wb(wb, output_path_excel)
 print("Workbook Created")
-# Convert Pandas dataframe to Excel
-# Method 1
-# xlr = pd.ExcelWriter(output_path_excel)
-# df.to_excel(xlr, 'Main Result')
-# xlr.save()
 
-# Method 2
+# Convert Pandas dataframe to Excel
 wb = load_workbook(output_path_excel)
 ws = wb.active
-rows = dataframe_to_rows(df, index=False)
-for r_idx, row in enumerate(rows, start=0):
-    if r_idx == 0:
-        continue
-    for c_idx, value in enumerate(row, start=1):
-        ws.cell(row=r_idx, column=c_idx, value=value)  # add cell
-# Best Fit Column Width
-column_letters = tuple(openpyxl.utils.get_column_letter(col_number + 1) for col_number in range(ws.max_column))
-for coulumn_number, column_letter in enumerate(column_letters):
-    if ws[column_letter + str(1)].value == "Grade":
-        marks_col = ws.column_dimensions[column_letters[coulumn_number - 1]]
-        # TODO: Use color scales on marks
-    ws.column_dimensions[column_letter].bestFit = True
+rows = dataframe_to_rows(df, header=True, index=False)
+for row_number, row in enumerate(rows, start=1):
+    for column_number, value in enumerate(row, start=1):
+        ws.cell(row=row_number, column=column_number, value=value)  # add cell
 
-wb.save(output_path_excel)
+column_widths = {
+    "Roll No": 20,
+    "Gender": 8,
+    "Name": 20,
+    "Subject": 15,
+    "Grade": 6,
+    "GR1": 5,
+    "GR2": 5,
+    "GR3": 5,
+    "Result": 8,
+    "Best 5 Percentage": 10,
+    "Compartment Subject": 15
+}
+
+# Adjusting Columns Width and Making the Headings Wrap Tezt
+for column_number in range(1, ws.max_column + 1):
+    column_letter = get_column_letter(column_number)
+    column_heading = ws[column_letter + "1"].value
+    ws[column_letter + "1"].alignment = Alignment(wrapText=True)
+    if column_heading in column_widths:
+        ws.column_dimensions[column_letter].width = column_widths[column_heading]
+    else:
+        ws.column_dimensions[column_letter].width = column_widths["Subject"]
+# Freezing the First Row and First Column
+ws.freeze_panes = "D2"
+
+# Save Workbook
+save_wb(wb, output_path_excel)
 # Open Workbook
 os.startfile(os.path.abspath(output_path_excel))
 print("Program Completed")
