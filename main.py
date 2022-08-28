@@ -321,11 +321,23 @@ def get_gender(string_containing_gender):
 
 
 def get_roll_no(string_containing_roll_no):
+    """Searches the string for student's name
+    Parameters:
+        string_containing_roll_no : A string that contains student's Roll No
+    Returns:
+       roll no : int
+    """
     roll_no = roll_no_regex.search(string_containing_roll_no).group(0)
     return roll_no
 
 
 def get_result(string_containing_result):
+    """Searches the string for student's result (PASS/FAIL/COMP/NECESSARY REPEAT)
+    Parameters:
+        string_containing_result : A string that contains student's Result
+    Returns:
+        result : str
+    """
     result = pass_fail_regex.search(string_containing_result).group(0)
     return result
 
