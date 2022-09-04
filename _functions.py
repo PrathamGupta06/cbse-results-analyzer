@@ -2,6 +2,7 @@ import re
 from openpyxl.styles import Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font
 
 CBSE_CLASS_12_SUBJECT_CODES = {
     # Language Subjects
@@ -390,6 +391,18 @@ def best_5_percent(marks_list):
     return total_marks / 5
 
 
+def write_data(ws_object, df_object):
+    rows = dataframe_to_rows(df_object, header=True, index=False)
+    for row in rows:
+        ws_object.append(row)
+
+def append_title(ws_object, title, row, end_column, start_column = 1):
+    ws_object.append([])
+    ws_object.append([title])
+    ws_object.cell(ws_object.max_row, column=start_column).font = Font(bold=True)
+    ws_object.merge_cells(start_row=ws_object.max_row, start_column=start_column, end_row=ws_object.max_row, end_column=end_column)
+
+
 def save_wb(workbook, path):
     try:
         workbook.save(path)
@@ -398,12 +411,6 @@ def save_wb(workbook, path):
             "ERROR: Unable to save the excel file. Please change the output file name or close the file if already "
             "open on the system")
         exit()
-
-
-def write_data(ws_object, df_object):
-    rows = dataframe_to_rows(df_object, header=True, index=False)
-    for row in rows:
-        ws_object.append(row)
 
 
 def adjust_column_widths(ws_object, column_widths):

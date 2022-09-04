@@ -111,55 +111,35 @@ wb.create_sheet('Analysis', 1)
 analyze_ws = wb['Analysis']
 
 # Children with Full Marks
-analyze_ws.append(["Children With Full Marks"])
-analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
-analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=4)
-
+title = "Children With Full Marks"
+append_title(analyze_ws, title, row=analyze_ws.max_row, end_column=4)
 for i in children_with_full_marks:
     analyze_ws.append(i)
 
 
 # Overall Toppers
-analyze_ws.append([])
-
-analyze_ws.append(["Overall {} Toppers".format(top_n_children)])
-analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
-analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=4)
+title = "Overall {} Toppers".format(top_n_children)
+append_title(analyze_ws, title, row=analyze_ws.max_row, end_column=4)
 
 # Male Toppers
-analyze_ws.append(["Male"])
-analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
-analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=4)
-
+append_title(analyze_ws, title="Male", row=analyze_ws.max_row, end_column=4)
 analyze_ws.append(["Roll No", "Gender", "Name", "Best 5 Percentage"])
-
 for i in top_male:
     analyze_ws.append(i)
 
 # Female Toppers
-analyze_ws.append([])
-
-analyze_ws.append(["Female"])
-analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
-analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=4)
-
+append_title(analyze_ws, title="Female", row=analyze_ws.max_row, end_column=4)
 analyze_ws.append(["Roll No", "Gender", "Name", "Best 5 Percentage"])
 for i in top_female:
     analyze_ws.append(i)
 
 # Distinctions in all subjects
-analyze_ws.append([])
-
-analyze_ws.append(["Total Distinctions: {0}".format(total_distinctions)])
-analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=3)
-analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
+title = "Total Distinctions: {0}".format(total_distinctions)
+append_title(analyze_ws, title, row=analyze_ws.max_row, end_column=4)
 
 # Distinctions in all 5 Subjects
-analyze_ws.append(["Total Distinctions in all 5 subjects: {}".format(all_5_distinctions)])
-analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=3)
-analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
-
-analyze_ws.append([])
+title = "Total Distinctions in all 5 subjects: {}".format(all_5_distinctions)
+append_title(analyze_ws, title, row=analyze_ws.max_row, end_column=4)
 
 # analyze_ws.append(["Distinctions in all 5 Subjects Students"])
 # analyze_ws.cell(row=ws.max_row), column=1).font = Font(bold=True)
@@ -182,4 +162,4 @@ print("Workbook Saved at", os.path.abspath(output_path_excel))
 # Launch Workbook if mode is not Command Line Argument
 if len(sys.argv) == 1:
     os.startfile(os.path.abspath(output_path_excel))
-    print("Program Completed Successfully")
+print("Program Completed Successfully")
