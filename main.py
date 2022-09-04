@@ -12,13 +12,6 @@ from _functions import *
 # TODO:
 #     Fix for case where student is absent
 
-"""Change the Below Variables"""
-
-# Values for testing
-# input_file = r'input/12th.txt'
-# output_path_excel = r'output/12th.xlsx'
-# mode = '12th'
-
 print("Welcome to CBSE Results Analyzer.\nThis Program is made by Pratham Gupta ("
       "https://github.com/PrathamGupta06/cbse-results-analyzer)\n")
 
@@ -64,7 +57,7 @@ main_sheet.title = "Main Result Sheet"
 write_data(main_sheet, main_df)
 adjust_column_widths(main_sheet, column_widths)
 
-# Freezing the First Row and First Column of Main Sheet
+# Freezing the First Row and First Three Columns of Main Sheet
 main_sheet.freeze_panes = "D2"
 
 # Creating Individual Subject Sheets
@@ -116,83 +109,64 @@ for student_data in data:
 # Writing the analysis data to worksheet
 wb.create_sheet('Analysis', 1)
 analyze_ws = wb['Analysis']
-last_row = 0
 
 # Children with Full Marks
 analyze_ws.append(["Children With Full Marks"])
-last_row += 1
-analyze_ws.cell(row=last_row, column=1).font = Font(bold=True)
-analyze_ws.merge_cells(start_row=last_row, start_column=1, end_row=last_row, end_column=4)
+analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
+analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=4)
 
 for i in children_with_full_marks:
     analyze_ws.append(i)
-    last_row += 1
+
 
 # Overall Toppers
 analyze_ws.append([])
-last_row += 1
 
 analyze_ws.append(["Overall {} Toppers".format(top_n_children)])
-last_row += 1
-analyze_ws.cell(row=last_row, column=1).font = Font(bold=True)
-analyze_ws.merge_cells(start_row=last_row, start_column=1, end_row=last_row, end_column=4)
+analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
+analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=4)
 
 # Male Toppers
 analyze_ws.append(["Male"])
-last_row += 1
-analyze_ws.cell(row=last_row, column=1).font = Font(bold=True)
-analyze_ws.merge_cells(start_row=last_row, start_column=1, end_row=last_row, end_column=4)
+analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
+analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=4)
 
 analyze_ws.append(["Roll No", "Gender", "Name", "Best 5 Percentage"])
-last_row += 1
 
 for i in top_male:
     analyze_ws.append(i)
-last_row += len(top_male)
 
 # Female Toppers
 analyze_ws.append([])
-last_row += 1
 
 analyze_ws.append(["Female"])
-last_row += 1
-analyze_ws.cell(row=last_row, column=1).font = Font(bold=True)
-analyze_ws.merge_cells(start_row=last_row, start_column=1, end_row=last_row, end_column=4)
+analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
+analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=4)
 
 analyze_ws.append(["Roll No", "Gender", "Name", "Best 5 Percentage"])
-last_row += 1
 for i in top_female:
     analyze_ws.append(i)
-last_row += len(top_male)
 
 # Distinctions in all subjects
-
 analyze_ws.append([])
-last_row += 1
 
 analyze_ws.append(["Total Distinctions: {0}".format(total_distinctions)])
-last_row += 1
-analyze_ws.merge_cells(start_row=last_row, start_column=1, end_row=last_row, end_column=3)
-analyze_ws.cell(row=last_row, column=1).font = Font(bold=True)
+analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=3)
+analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
 
 # Distinctions in all 5 Subjects
-
 analyze_ws.append(["Total Distinctions in all 5 subjects: {}".format(all_5_distinctions)])
-last_row += 1
-analyze_ws.merge_cells(start_row=last_row, start_column=1, end_row=last_row, end_column=3)
-analyze_ws.cell(row=last_row, column=1).font = Font(bold=True)
+analyze_ws.merge_cells(start_row=analyze_ws.max_row, start_column=1, end_row=analyze_ws.max_row, end_column=3)
+analyze_ws.cell(row=analyze_ws.max_row, column=1).font = Font(bold=True)
 
 analyze_ws.append([])
-last_row += 1
 
-analyze_ws.append(["Distinctions in all 5 Subjects Students"])
-last_row += 1
-analyze_ws.cell(row=last_row, column=1).font = Font(bold=True)
-
-analyze_ws.merge_cells(start_row=last_row, start_column=1, end_row=last_row, end_column=3)
-for i in all_5_distinction_students:
-    analyze_ws.append(i)
-last_row += len(all_5_distinction_students)
+# analyze_ws.append(["Distinctions in all 5 Subjects Students"])
+# analyze_ws.cell(row=ws.max_row), column=1).font = Font(bold=True)
+# analyze_ws.merge_cells(start_row=ws.max_row), start_column=1, end_row=ws.max_row), end_column=3)
+# for i in all_5_distinction_students:
+#     analyze_ws.append(i)
+# last_row += len(all_5_distinction_students)
 
 # Adjust the widths
 analyze_ws.column_dimensions["A"].width = column_widths["Roll No"]

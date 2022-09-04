@@ -201,7 +201,7 @@ def filter_lines(list_of_lines, format):
     """Takes the list of lines and the format as input and removes the unnecessary lines
     Parameters:
         list_of_lines : list
-        format : str (either "10th" or "12th"
+        format : str (either "10th" or "12th")
     Returns:
         filtered lines containing student data.
     """
@@ -224,9 +224,9 @@ def filter_lines(list_of_lines, format):
 
 def contains_student_data(line):
     """Takes a string as input and checks whether that string contains student's data
-   Parameters:
+    Parameters:
         line : str
-    Returns -> bool:
+    Returns:
         True, if contains student's roll no and therefore the data
         False, if it doesn't contain student's roll no and therefore no data.
     """
@@ -280,11 +280,7 @@ def get_name(string_containing_name):
     Returns:
         Name : str
     """
-    # name_regex = re.compile(r'[A-Z]+')
-    # name_tuple = name_regex.findall(string_containing_name)
-    # name[0] is gender and name[-1] is fail/pass
-    # remove name[0] and name[-1]
-    # return ' '.join(name_tuple[1:-1])
+
     return string_containing_name[13:64].strip()
 
 
@@ -387,7 +383,7 @@ def get_headers(unique_subject_codes, mode):
 
 
 def best_5_percent(marks_list):
-    marks_list.sort()
+    marks_list.sort(reverse=True)
     total_marks = 0
     for i in marks_list[:5]:
         total_marks += i
@@ -406,9 +402,8 @@ def save_wb(workbook, path):
 
 def write_data(ws_object, df_object):
     rows = dataframe_to_rows(df_object, header=True, index=False)
-    for row_number, row in enumerate(rows, start=1):
-        for column_number, value in enumerate(row, start=1):
-            ws_object.cell(row=row_number, column=column_number, value=value)
+    for row in rows:
+        ws_object.append(row)
 
 
 def adjust_column_widths(ws_object, column_widths):
@@ -512,4 +507,4 @@ def get_individual_student_data(list_of_individual_student_lines, subject_code_o
 
 
 if __name__ == '__main__':
-    print("Please Run main.py and not _functions.py")
+    print("Please run main.py and not _functions.py")
