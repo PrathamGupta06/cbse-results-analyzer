@@ -3,14 +3,14 @@ MADE BY PRATHAM GUPTA (https://github.com/PrathamGupta06/cbse-results-analyzer)
 """
 
 import os
+import sys
 import pandas as pd
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 from _functions import *
 
 # TODO:
-#     Ask for Case where student is absent
-#     Analyse the marks and grades and print them
+#     Fix for case where student is absent
 
 """Change the Below Variables"""
 
@@ -22,10 +22,16 @@ from _functions import *
 print("Welcome to CBSE Results Analyzer.\nThis Program is made by Pratham Gupta ("
       "https://github.com/PrathamGupta06/cbse-results-analyzer)\n")
 
-# Taking Input From User
-input_file = input("Enter Input Result File Path (e.g 12th.txt): ")
-output_path_excel = input("Enter Output Path (e.g 12th.xlsx): ")
-mode = input("Enter Class (10th or 12th): ")
+if len(sys.argv) > 1:
+    # Command Line Argument Mode
+    input_file = sys.argv[1]
+    output_path_excel = sys.argv[2]
+    mode = sys.argv[3]
+else:
+    # Taking input from user
+    input_file = input("Enter Input Result File Path (e.g 12th.txt): ")
+    output_path_excel = input("Enter Output Path (e.g 12th.xlsx): ")
+    mode = input("Enter Class (10th or 12th): ")
 
 # Create Workbook
 wb = Workbook()
@@ -197,7 +203,9 @@ analyze_ws.column_dimensions["D"].width = column_widths["Subject"]
 # Save Workbook
 save_wb(wb, output_path_excel)
 wb.close()
+print("Workbook Saved at", os.path.abspath(output_path_excel))
 
-# Launch Workbook
-os.startfile(os.path.abspath(output_path_excel))
-print("Program Completed Successfully")
+# Launch Workbook if mode is not Command Line Argument
+if len(sys.argv) == 1:
+    os.startfile(os.path.abspath(output_path_excel))
+    print("Program Completed Successfully")
