@@ -2,3 +2,4 @@ output/*
 input/*
 .idea
 venv
+*.xlsx
