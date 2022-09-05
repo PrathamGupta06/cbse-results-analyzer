@@ -6,7 +6,6 @@ import os
 import sys
 import pandas as pd
 from openpyxl import Workbook, load_workbook
-from openpyxl.styles import Font
 from _functions import *
 
 # TODO:
@@ -22,7 +21,7 @@ if len(sys.argv) > 1:
     mode = sys.argv[3]
 else:
     # Taking input from user
-    input_file = input("Enter Input Result File Path (e.g 12th.txt): ")
+    input_file = input("Enter Input Result File Path (e.g demo/12th.txt): ")
     output_path_excel = input("Enter Output Path (e.g 12th.xlsx): ")
     mode = input("Enter Class (10th or 12th): ")
 
