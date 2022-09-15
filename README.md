@@ -17,7 +17,7 @@ A GUI and CLI tool to convert the Class 10th and 12th Result Text File to Excel 
 1. Google Colab (Easiest)
 2. Locally using python
 
-### Method 1: Google Colab
+### Method 1: Google Colab (Easiest)
 1. Go to the link (https://colab.research.google.com/drive/1ardBfRG_S40qejG5VnCVWIJYEGpSHluI?usp=sharing)
 2. Run each cell one by one
 3. Rest of the instructions are given in the colab file
