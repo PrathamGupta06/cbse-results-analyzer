@@ -1,15 +1,15 @@
 # CBSE Result TXT to Excel Converter and Analyzer
-A GUI and CLI tool to convert the Class 10th and 12th Result Text File to Excel with proper formatting and analyze the result and display some statistics.
+A CLI tool to convert the Class 10th and 12th Result Text File to Excel with proper formatting and analyze the result and display some statistics.
 
 ## Features
-* ⚡Simple and easy to use. Single Click
-* ️✅Converts the txt file into properly formatted excel file.
-* 🔢Different Spreadsheet page for each Subject
-* 📺Displays the statistics such as 
-  * 🎓Top 5 Male and Female Students
-  * 💯Children with full marks in individual subjects
-  * 📔Number of Distinctions in all 5 subjects
-  * 📑Number of Distinctions
+* ⚡ Simple and easy to use. Single Click
+* ️✅ Converts the txt file into a properly formatted excel file.
+* 🔢 Different Spreadsheet page for each Subject
+* 📺 Displays the statistics such as 
+  * 🎓 Top 5 Male and Female Students
+  * 💯 Children with full marks in individual subjects
+  * 📔 Number of Distinctions in all 5 subjects
+  * 📑 Number of Distinctions
 
 ## How to Run
 
