@@ -1,4 +1,5 @@
 import re
+import os
 from openpyxl.styles import Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.utils import get_column_letter
@@ -175,7 +176,9 @@ CBSE_CLASS_10_SUBJECT_CODES = {
 
 # data_format = [roll no, gender, name, marks, grade, pass/fail, Compartment Subject, best 5 subject marks]
 
-# ---- REGEX VALUES ----
+# ======================
+# REGEX VALUES
+# ======================
 # Change these values in case the format changes
 
 subject_codes_regex = re.compile(r'(?<=\s)\d\d\d(?=\s)')
@@ -188,8 +191,9 @@ grades_regex = re.compile(r'[A-E][12]|(?<=\s)E(?=\s)')
 AllSubjectNames = []
 
 
-# ----- INPUT FILE FUNCTIONS -----
-
+# ======================
+# INPUT FILE FUNCTIONS
+# ======================
 
 def get_lines(file):
     """Takes the file path as parameter and returns a list of lines"""
@@ -225,7 +229,7 @@ def filter_lines(list_of_lines, format):
 
 def contains_student_data(line):
     """Takes a string as input and checks whether that string contains student's data
-    Parameters:
+    Arguments:
         line : str
     Returns:
         True, if contains student's roll no and therefore the data
@@ -236,8 +240,9 @@ def contains_student_data(line):
     return False
 
 
-# ----- CONVERSION FUNCTIONS -----
-
+# ======================
+# CONVERSION FUNCTIONS
+# ======================
 
 def convert_to_list_of_integer(list_of_strings):
     """Converts a list of strings to a list of integers"""
@@ -251,7 +256,9 @@ def convert_codes_to_subjects(list_of_codes, mode):
     return [CBSE_CLASS_12_SUBJECT_CODES[code] for code in list_of_codes]
 
 
-# ----- STRING DATA EXTRACTION FUNCTIONS -----
+# ======================
+# STRING DATA EXTRACTION FUNCTIONS
+# ======================
 
 def get_subject_codes(string_containing_subject_codes):
     """Searches the string for CBSE Subject Codes
@@ -367,7 +374,43 @@ def get_three_grades(line_containing_three_grades):
     return line_containing_three_grades[113:123].strip().split()
 
 
-# ----- GENERAL FUNCTIONS -----
+# ======================
+# DATA VALIDATION FUNCTIONS
+# ======================
+
+def validate_input_path(file_name):
+    """Checks whether the input file is valid or not
+    Parameters:
+        file_name : str
+    Returns:
+        True, if the file is valid
+        False, if the file is invalid
+    """
+    if not os.path.isfile(file_name):
+        print("File {} does not exist".format(file_name))
+        return False
+    if not file_name.endswith(".txt"):
+        print("File {} is not a text file".format(file_name))
+        return False
+    return True
+
+
+def validate_output_path(file_name):
+    """Checks whether the output file is valid or not
+    Parameters:
+        file_name : str
+    Returns:
+        True, if the file is valid
+        False, if the file is invalid
+    """
+    if not os.path.exists(os.path.dirname(file_name)):
+        print("Directory {} does not exist".format(os.path.dirname(file_name)))
+        return False
+    return True
+
+# ======================
+# GENERAL FUNCTIONS
+# ======================
 
 
 def get_headers(unique_subject_codes, mode):
@@ -396,11 +439,13 @@ def write_data(ws_object, df_object):
     for row in rows:
         ws_object.append(row)
 
-def append_title(ws_object, title, row, end_column, start_column = 1):
+
+def append_title(ws_object, title, end_column, start_column=1):
     ws_object.append([])
     ws_object.append([title])
     ws_object.cell(ws_object.max_row, column=start_column).font = Font(bold=True)
-    ws_object.merge_cells(start_row=ws_object.max_row, start_column=start_column, end_row=ws_object.max_row, end_column=end_column)
+    ws_object.merge_cells(start_row=ws_object.max_row, start_column=start_column, end_row=ws_object.max_row,
+                          end_column=end_column)
 
 
 def save_wb(workbook, path):
@@ -425,7 +470,9 @@ def adjust_column_widths(ws_object, column_widths):
             ws_object.column_dimensions[column_letter].width = column_widths["Subject"]
 
 
-# ----- MAIN FUNCTIONS TO GET DATA -----
+# ======================
+# MAIN FUNCTIONS TO GET DATA
+# ======================
 
 def get_data(result_file, mode):
     if mode == "10th":

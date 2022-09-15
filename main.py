@@ -2,7 +2,6 @@
 MADE BY PRATHAM GUPTA (https://github.com/PrathamGupta06/cbse-results-analyzer)
 """
 
-import os
 import sys
 import pandas as pd
 from openpyxl import Workbook, load_workbook
@@ -11,19 +10,47 @@ from _functions import *
 # TODO:
 #     Fix for case where student is absent
 
+print("-"*64)
 print("Welcome to CBSE Results Analyzer.\nThis Program is made by Pratham Gupta ("
-      "https://github.com/PrathamGupta06/cbse-results-analyzer)\n")
+      "https://github.com/PrathamGupta06/cbse-results-analyzer)")
+print("-"*64)
 
 if len(sys.argv) > 1:
     # Command Line Argument Mode
     input_file = sys.argv[1]
+    if not validate_input_path(input_file):
+        print("ERROR: Invalid Input File Path")
+        exit()
+
     output_path_excel = sys.argv[2]
+    if not validate_output_path(output_path_excel):
+        print("ERROR: Invalid Output Path")
+        exit()
+    if not output_path_excel.endswith(".xlsx"):   # Append .xlsx if not present
+        output_path_excel += ".xlsx"
+
     mode = sys.argv[3]
+    if mode not in ("10th", "12th"):
+        print("ERROR: Invalid Class")
+        print("Valid Classes: 10th, 12th")
 else:
     # Taking input from user
-    input_file = input("Enter Input Result File Path (e.g demo/12th.txt): ")
+    input_file = input("\nEnter Input Result File Path (e.g demo/12th.txt): ")
+    if not validate_input_path(input_file):
+        print("ERROR: Invalid Input File Path")
+        exit()
+
     output_path_excel = input("Enter Output Path (e.g 12th.xlsx): ")
+    if not validate_output_path(output_path_excel):
+        print("ERROR: Invalid Output Path")
+        exit()
+    if not output_path_excel.endswith(".xlsx"):   # Append .xlsx if not present
+        output_path_excel += ".xlsx"
+
     mode = input("Enter Class (10th or 12th): ")
+    if mode not in ("10th", "12th"):
+        print("ERROR: Invalid Class")
+        print("Valid Classes: 10th, 12th")
 
 # Create Workbook
 wb = Workbook()
@@ -111,34 +138,34 @@ analyze_ws = wb['Analysis']
 
 # Children with Full Marks
 title = "Children With Full Marks"
-append_title(analyze_ws, title, row=analyze_ws.max_row, end_column=4)
+append_title(analyze_ws, title, end_column=4)
 for i in children_with_full_marks:
     analyze_ws.append(i)
 
 
 # Overall Toppers
 title = "Overall {} Toppers".format(top_n_children)
-append_title(analyze_ws, title, row=analyze_ws.max_row, end_column=4)
+append_title(analyze_ws, title, end_column=4)
 
 # Male Toppers
-append_title(analyze_ws, title="Male", row=analyze_ws.max_row, end_column=4)
+append_title(analyze_ws, title="Male", end_column=4)
 analyze_ws.append(["Roll No", "Gender", "Name", "Best 5 Percentage"])
 for i in top_male:
     analyze_ws.append(i)
 
 # Female Toppers
-append_title(analyze_ws, title="Female", row=analyze_ws.max_row, end_column=4)
+append_title(analyze_ws, title="Female", end_column=4)
 analyze_ws.append(["Roll No", "Gender", "Name", "Best 5 Percentage"])
 for i in top_female:
     analyze_ws.append(i)
 
 # Distinctions in all subjects
 title = "Total Distinctions: {0}".format(total_distinctions)
-append_title(analyze_ws, title, row=analyze_ws.max_row, end_column=4)
+append_title(analyze_ws, title, end_column=4)
 
 # Distinctions in all 5 Subjects
 title = "Total Distinctions in all 5 subjects: {}".format(all_5_distinctions)
-append_title(analyze_ws, title, row=analyze_ws.max_row, end_column=4)
+append_title(analyze_ws, title, end_column=4)
 
 # analyze_ws.append(["Distinctions in all 5 Subjects Students"])
 # analyze_ws.cell(row=ws.max_row), column=1).font = Font(bold=True)
