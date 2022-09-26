@@ -403,7 +403,7 @@ def validate_output_path(file_name):
         True, if the file is valid
         False, if the file is invalid
     """
-    if not os.path.exists(os.path.dirname(file_name)):
+    if not os.path.dirname(file_name) and not os.path.exists(os.path.dirname(file_name)):
         print("Directory {} does not exist".format(os.path.dirname(file_name)))
         return False
     return True
