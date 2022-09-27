@@ -3,15 +3,15 @@ A CLI tool to convert the Class 10th and 12th Result Text File to Excel with pro
 
 ## Features
 * ⚡ Simple and easy to use. Single Click
-* ️✅ Converts the txt file into a properly formatted excel file.
+* ️✅ Converts the txt file into a properly formatted Excel file.
 * 🔢 Different Spreadsheet page for each Subject
 * 📺 Displays the statistics such as 
   * 🎓 Top 5 Male and Female Students
   * 💯 Children with full marks in individual subjects
   * 📔 Number of Distinctions in all 5 subjects
   * 📑 Number of Distinctions
-
-## How to Run
+## Demo Files
+* 12th : [Click Here](https://github.com/PrathamGupta06/cbse-results-analyzer/releases/download/v1.0.0/12th_Demo.txt)
 
 ### There are two methods to run
 1. Google Colab (Easiest)
@@ -31,8 +31,8 @@ A CLI tool to convert the Class 10th and 12th Result Text File to Excel with pro
 5. Open the terminal in the extracted folder and run `pip install -r requirements.txt`
 6. Run `main.py`
     * Enter the file name
-    * Enter the output file name.. make sure to enter .xlsx in after the file name
-    * Enter the mode i.e the class. It can accept only two values i.e. `12th` and `10th`
+    * Enter the output file name.Make sure to enter .xlsx in after the file name
+    * Enter the mode i.e. the class. It can accept only two values i.e. `12th` and `10th`
     * Exported File will automatically Launch.
   
 ## You can run the program again for another class
