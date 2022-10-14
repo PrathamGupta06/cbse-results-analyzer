@@ -389,7 +389,7 @@ def validate_input_path(file_name):
     if not os.path.isfile(file_name):
         print("File {} does not exist".format(file_name))
         return False
-    if not file_name.endswith(".txt"):
+    if not (file_name.endswith(".txt") or file_name.endswith(".TXT")):
         print("File {} is not a text file".format(file_name))
         return False
     return True
