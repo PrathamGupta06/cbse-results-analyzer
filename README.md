@@ -26,7 +26,9 @@ A CLI tool to convert the Class 10th and 12th Result Text File to Excel with pro
 1. Install [Python](https://www.python.org/downloads/) (if not already)
     * While Installing make sure to check the add to system PATH option
 2. Download the code by clicking on the Green Code button then Download as ZIP
-    * ![image](https://user-images.githubusercontent.com/87975651/188325450-7c2e950a-cd7a-4d07-b9c2-5f73a4e177a4.png)
+     
+     ![image](https://user-images.githubusercontent.com/87975651/188325450-7c2e950a-cd7a-4d07-b9c2-5f73a4e177a4.png)
+     
 4. Extract the ZIP file and paste your result text file in the extracted folder
 5. Open the terminal in the extracted folder and run `pip install -r requirements.txt`
 6. Run `main.py`
