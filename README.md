@@ -13,6 +13,7 @@ A CLI tool to convert the Class 10th and 12th Result Text File to Excel with pro
 ## Demo Files
 * 12th : [Click Here](https://github.com/PrathamGupta06/cbse-results-analyzer/releases/download/v1.0.0/12th_Demo.txt)
 
+## How to Run
 ### There are two methods to run
 1. Google Colab (Easiest)
 2. Locally using python
