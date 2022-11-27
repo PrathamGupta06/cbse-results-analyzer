@@ -1,7 +1,6 @@
 import re
 import os
 from openpyxl.styles import Alignment
-from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font
 
@@ -174,8 +173,6 @@ CBSE_CLASS_10_SUBJECT_CODES = {
 
 }
 
-# data_format = [roll no, gender, name, marks, grade, pass/fail, Compartment Subject, best 5 subject marks]
-
 # ======================
 # REGEX VALUES
 # ======================
@@ -210,7 +207,6 @@ def filter_lines(list_of_lines, format):
     Returns:
         filtered lines containing student data.
     """
-    print("Filtering Lines in format {}".format(format))
     filtered_lines = []
     total_students = 0
 
@@ -223,7 +219,7 @@ def filter_lines(list_of_lines, format):
             else:
                 filtered_lines.append(list_of_lines[line_number + 2])
 
-    print("Filtered Data of {} students".format(total_students))
+    print("Found {} students.".format(total_students))
     return filtered_lines
 
 
@@ -403,7 +399,6 @@ def validate_output_path(file_name):
         True, if the file is valid
         False, if the file is invalid
     """
-    print(os.path.dirname(file_name))
     if os.path.dirname(file_name) != "" and not os.path.exists(os.path.dirname(file_name)):
         print("ERROR: Directory {} does not exist. Please create the directory.".format(os.path.dirname(file_name)))
         return False
@@ -435,14 +430,9 @@ def best_5_percent(marks_list):
     return total_marks / 5
 
 
-def write_data(ws_object, df_object):
-    rows = dataframe_to_rows(df_object, header=True, index=False)
-    for row in rows:
-        ws_object.append(row)
-
-
-def append_title(ws_object, title, end_column, start_column=1):
-    ws_object.append([])
+def append_title(ws_object, title, end_column, start_column=1, top_row=True):
+    if top_row:
+        ws_object.append([])
     ws_object.append([title])
     ws_object.cell(ws_object.max_row, column=start_column).font = Font(bold=True)
     ws_object.merge_cells(start_row=ws_object.max_row, start_column=start_column, end_row=ws_object.max_row,
@@ -476,6 +466,7 @@ def adjust_column_widths(ws_object, column_widths):
 # ======================
 
 def get_data(result_file, mode):
+    # data_format = [Roll No, Gender, Name, Marks, Grade, Pass/Fail, Compartment Subject, Best 5 Subject Marks]
     if mode == "10th":
         return get_data_10th(result_file)
     elif mode == "12th":
@@ -562,4 +553,4 @@ def get_individual_student_data(list_of_individual_student_lines, subject_code_o
 
 
 if __name__ == '__main__':
-    print("Please run main.py and not _functions.py")
+    print("Please run main.py and not functions.py")
